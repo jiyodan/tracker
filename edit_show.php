@@ -1,6 +1,53 @@
 <?php
 include 'config.php';
-include 'save_image.php';
+
+
+function saveUploadedImage($file) {
+    $targetDir = __DIR__ . "/images/";
+    
+    // Create directory if it doesn't exist
+    if (!file_exists($targetDir)) {
+        mkdir($targetDir, 0755, true);
+    }
+
+    // Validate file
+    $allowedTypes = [
+        'jpg' => 'image/jpeg', 
+        'jpeg' => 'image/jpeg', 
+        'png' => 'image/png', 
+        'gif' => 'image/gif',
+        'webp' => 'image/webp'
+    ];
+    
+    $fileType = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    
+    // Check if valid file type
+    if(!array_key_exists($fileType, $allowedTypes)) {
+        die("Invalid file type. Allowed: JPG, JPEG, PNG, GIF, WEBP");
+    }
+
+    // Verify MIME type
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $detectedType = finfo_file($finfo, $file['tmp_name']);
+    if(!in_array($detectedType, $allowedTypes)) {
+        die("Invalid file content. Detected type: $detectedType");
+    }
+
+    // Generate unique filename
+    $newFilename = uniqid() . '_' . bin2hex(random_bytes(8)) . '.' . $fileType;
+    $targetPath = $targetDir . $newFilename;
+    
+    if(move_uploaded_file($file['tmp_name'], $targetPath)) {
+        return 'images/' . $newFilename;
+    }
+    
+    return null;
+}
+
+
+
+
+
 
 // Fetch existing data
 $show = [];
@@ -104,7 +151,8 @@ if (isset($_POST['delete_show'])) {
 <body>
     <div class="container">
         <a href="/shows/index.php" class="home-link">Home →</a>
-        <form method="post">
+        
+		<form method="post" enctype="multipart/form-data">
             <input type="hidden" name="id" value="<?php echo $show['id']; ?>">
             <input type="hidden" name="existing_image" value="<?= $show['local_image_path'] ?>">
             
@@ -118,6 +166,11 @@ if (isset($_POST['delete_show'])) {
             <div class="form-group">
                 <label for="image_url">Image URL:</label>
                 <input type="text" id="image_url" name="image_url" value="<?php echo $show['image_url']; ?>">
+            </div><br>
+			
+			<div class="form-group">
+                <label for="image_file">Upload New Image:</label>
+                <input type="file" id="image_file" name="image_file">
             </div><br>
 
             <div class="form-group">
@@ -138,11 +191,21 @@ if (isset($_POST['delete_show'])) {
             </div><br>
 
             <div class="form-group">
-                <label for="status">Status:</label>
-                <select id="status" name="status">
-                    <option value="<?php echo $show['status']; ?>"><?php echo $show['status']; ?></option>
-                </select><br>
-            </div>
+				<label for="status">Status:</label>
+				<select id="status" name="status">
+        <?php
+        // Define all possible status options
+        $statusOptions = ['watching', 'planning', 'paused', 'completed', 'dropped'];
+        
+        foreach ($statusOptions as $option) {
+            // Check if this option is the current status
+            $selected = ($option == $show['status']) ? 'selected' : '';
+            echo "<option value='$option' $selected>$option</option>";
+        }
+        ?>
+				</select><br>
+			</div>
+			
             <br>
             <div class="delete-button">
                 <input type="submit" name="delete_show" value="Delete Show" style="background-color: var(--delete-button-background); color: white; border: none; padding: 8px 16px; cursor: pointer;">

@@ -22,7 +22,7 @@
         }
 
         .container {
-            max-width: 2200px;
+            max-width: 3200px;
             margin: 0 auto;
         }
 
@@ -75,7 +75,7 @@
 
         .add-form {
             background-color: var(--card-bg);
-            padding: 20px;
+            padding: 5px;
             border-radius: 8px;
             margin-bottom: 20px;
         }
@@ -97,12 +97,12 @@
         .number-control {
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin: 5px 0;
+            gap: 16px;
+            margin: 10px 0;
         }
 
         .increment-btn {
-            padding: 2px 8px;
+            padding: 4px 6px;
             margin: 0;
             background-color: #4CAF50;
         }
