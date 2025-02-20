@@ -127,7 +127,7 @@
         <div class="nav">
             <a href="?status=all">All</a>
             <a href="?status=watching">Watching</a>
-            <a href="?status=planned">Planned</a>
+            <a href="?status=planning">Planning</a>
             <a href="?status=paused">Paused</a>
             <a href="?status=completed">Completed</a>
             <a href="?status=dropped">Dropped</a>
