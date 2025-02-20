@@ -4,4 +4,4 @@ you need to add a user inside of phpmyadmin called "tracker" with the password "
 once those steps have been done you should be able to start the apache and mysql using the "xamp control panel" in windows or in linux by navigating to "/opt/lampp" and executing the command "./lampp start"
 to access the website you navigate to "IPADDRESS/shows/index.php"
 
-![screenshot](imageFolder/screenshot.png)
+![screenshot](screenshot.png)
