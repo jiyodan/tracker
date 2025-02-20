@@ -7,10 +7,10 @@
     <title>Show Tracker</title>
     <style>
         :root {
-            --bg-color:rgb(0, 0, 0);
+            --bg-color: rgb(0, 0, 0);
             --text-color: #ffffff;
             --accent-color: #2a9fd6;
-            --card-bg:rgb(22, 22, 22);
+            --card-bg: rgb(22, 22, 22);
         }
 
         body {
@@ -22,7 +22,7 @@
         }
 
         .container {
-            max-width: 3200px;
+            max-width: 2200px;
             margin: 0 auto;
         }
 
@@ -119,21 +119,34 @@
             background-color: #444;
             border: 1px solid #555;
         }
-    
-    </style>
+
+        .search-bar {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        </style>
 </head>
 <body>
     <div class="container">
         <div class="nav">
-            <a href="?status=all">All</a>
-            <a href="?status=watching">Watching</a>
-            <a href="?status=planning">Planning</a>
-            <a href="?status=paused">Paused</a>
-            <a href="?status=completed">Completed</a>
-            <a href="?status=dropped">Dropped</a>
+            <?php
+            $current_status = $_GET['status'] ?? 'all';
+            $statuses = ['all', 'watching', 'planned', 'paused', 'completed', 'dropped'];
+            foreach ($statuses as $status) {
+                $active = ($status == $current_status) ? 'style="background-color: var(--accent-color);"' : '';
+                echo "<a href='?status=$status' $active>" . ucfirst($status) . "</a>";
+            }
+            ?>
         </div>
 
-        <form class="add-form" method="POST" action="add_show.php" enctype="multipart/form-data">
+        <form class="search-bar" method="GET">
+            <input type="hidden" name="status" value="<?= htmlspecialchars($current_status) ?>">
+            <input type="text" name="search" placeholder="Search by show name" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+            <button type="submit">Search</button>
+        </form>
+
+                <form class="add-form" method="POST" action="add_show.php" enctype="multipart/form-data">
             <input type="text" name="name" placeholder="Show Name" required>
             <input type="file" name="image_file" accept="image/*, .webp">
             <input type="text" name="image_url" placeholder="OR Image URL (if not uploading)">
@@ -150,49 +163,59 @@
             <button type="submit">Add Show</button>
         </form>
 
-        <?php
-        $status = $_GET['status'] ?? 'all';
-        $sql = "SELECT * FROM shows ORDER BY name ASC";
-        if ($status !== 'all') {
-            $sql = "SELECT * FROM shows WHERE status = ? ORDER BY name ASC";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([$status]);
-        } else {
-            $stmt = $pdo->query($sql);
-        }
-        ?>
+<?php
+        $search = $_GET['search'] ?? '';
+        $sql = "SELECT * FROM shows WHERE 1";
+        $params = [];
 
-        <div class="shows-grid">
-            <?php while ($row = $stmt->fetch(PDO::FETCH_ASSOC)): ?>
-                <div class="show-card">
-                    <?php if ($row['local_image_path'] || $row['image_url']): ?>
-                        <img src="<?= htmlspecialchars($row['local_image_path'] ?? $row['image_url']) ?>" alt="Show image">
-                    <?php endif; ?>
-                    <div>
-                        <h3><?= htmlspecialchars($row['name']) ?></h3>
+        if ($current_status !== 'all') {
+            $sql .= " AND status = ?";
+            $params[] = $current_status;
+        }
+
+        if (!empty($search)) {
+            $sql .= " AND name LIKE ?";
+            $params[] = "%$search%";
+        }
+
+        $sql .= " ORDER BY name ASC";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+?>
+
+
+    <div class="shows-grid">
+        <?php while ($row = $stmt->fetch(PDO::FETCH_ASSOC)): ?>
+            <div class="show-card">
+                <?php if ($row['local_image_path'] || $row['image_url']): ?>
+                    <img src="<?= htmlspecialchars($row['local_image_path'] ?? $row['image_url']) ?>" alt="Show image">
+                <?php endif; ?>
+                
+                <div>
+                    <h3><?= htmlspecialchars($row['name']) ?></h3>
 						
-						                        <!-- Season with increment button -->
-                        <div class="number-control">
-                            <span>Season: <?= $row['season'] ?></span>
-                            <form method="POST" action="increment.php" style="display: inline;">
-                                <input type="hidden" name="id" value="<?= $row['id'] ?>">
-                                <input type="hidden" name="field" value="season">
-                                <button type="submit" class="increment-btn">+</button>
+					    <!-- Season with increment button -->
+                    <div class="number-control">
+                        <span>Season: <?= $row['season'] ?></span>
+                        <form method="POST" action="increment.php" style="display: inline;">
+                            <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                            <input type="hidden" name="field" value="season">
+                            <button type="submit" class="increment-btn">+</button>
                             </form>
                         </div>
 						
-						                        <!-- Episode with increment button -->
-                        <div class="number-control">
-                            <span>Episode: <?= $row['episode'] ?></span>
-                            <form method="POST" action="increment.php" style="display: inline;">
-                                <input type="hidden" name="id" value="<?= $row['id'] ?>">
-                                <input type="hidden" name="field" value="episode">
-                                <button type="submit" class="increment-btn">+</button>
-                            </form>
-                        </div>
+                        <!-- Episode with increment button -->
+                    <div class="number-control">
+                      <span>Episode: <?= $row['episode'] ?></span>
+                        <form method="POST" action="increment.php" style="display: inline;">
+                             <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                             <input type="hidden" name="field" value="episode">
+                            <button type="submit" class="increment-btn">+</button>
+                           </form>
+                    </div>
 						
                         
-                        <!-- Editable link field -->
+                      <!-- Editable link field -->
                         <form class="link-edit-form" method="POST" action="update_link.php">
                             <input type="hidden" name="id" value="<?= $row['id'] ?>">
                             <input type="text" class="link-edit-input" name="link" 
