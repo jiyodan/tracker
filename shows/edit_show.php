@@ -92,7 +92,7 @@ if (isset($_POST['update'])) {
     ]);
 
     // After update, redirect back to index
-    header('Location: index.php');
+    header('Location: index.php?status=watching');
     exit;
 }
 
@@ -100,7 +100,7 @@ if (isset($_POST['update'])) {
 if (isset($_POST['delete_show'])) {
     $stmt = $pdo->prepare("DELETE FROM shows WHERE id = ?");
     $stmt->execute([$_POST['id']]);
-    header('Location: index.php');
+    header('Location: index.php?status=watching');
     exit;
 }
 
