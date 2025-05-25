@@ -132,7 +132,7 @@
         <div class="nav">
             <?php
             $current_status = $_GET['status'] ?? 'all';
-            $statuses = ['watching', 'planned', 'paused', 'completed', 'dropped','all'];
+            $statuses = ['watching', 'planning', 'paused', 'completed', 'dropped','all'];
             foreach ($statuses as $status) {
                 $active = ($status == $current_status) ? 'style="background-color: var(--accent-color);"' : '';
                 echo "<a href='?status=$status' $active>" . ucfirst($status) . "</a>";
@@ -155,7 +155,7 @@
             <input type="text" name="link" placeholder="Watch Link">
             <select name="status" required>
                 <option value="watching">Watching</option>
-                <option value="planned">Planned</option>
+                <option value="planning">Planning</option>
                 <option value="paused">Paused</option>
                 <option value="completed">Completed</option>
                 <option value="dropped">Dropped</option>
