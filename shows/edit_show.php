@@ -206,8 +206,9 @@ if (isset($_POST['delete_show'])) {
 			
             <br>
             <div class="delete-button">
-                <input type="submit" name="delete_show" value="Delete Show" style="background-color: var(--delete-button-background); color: white; border: none; padding: 8px 16px; cursor: pointer;">
                 <input type="submit" name="update" value="Update Show" style="background-color: #4CAF50; color: white; border: none; padding: 8px 16px; cursor: pointer;">
+		<input type="submit" name="delete_show" value="Delete Show" style="background-color: var(--delete-button-background); color: white; border: none; padding: 8px 16px; cursor: pointer;">
+
             </div>
         </form>
     </div>
