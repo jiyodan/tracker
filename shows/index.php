@@ -10,7 +10,7 @@
             --bg-color: rgb(0, 0, 0);
             --text-color: #ffffff;
             --accent-color: #2a9fd6;
-            --card-bg: rgb(22, 22, 22);
+            --card-bg: rgb(19, 18, 18);
         }
 
         body {
@@ -194,25 +194,17 @@
                 <div>
                     <h3><?= htmlspecialchars($row['name']) ?></h3>
 						
-					    <!-- Season with increment button -->
-                    <div class="number-control">
-                        <span>Season: <?= $row['season'] ?></span>
-                        <form method="POST" action="increment.php" style="display: inline;">
-                            <input type="hidden" name="id" value="<?= $row['id'] ?>">
-                            <input type="hidden" name="field" value="season">
-                            <button type="submit" class="increment-btn">+</button>
-                            </form>
-                        </div>
-						
-                        <!-- Episode with increment button -->
-                    <div class="number-control">
-                      <span>Episode: <?= $row['episode'] ?></span>
-                        <form method="POST" action="increment.php" style="display: inline;">
-                             <input type="hidden" name="id" value="<?= $row['id'] ?>">
-                             <input type="hidden" name="field" value="episode">
-                            <button type="submit" class="increment-btn">+</button>
-                           </form>
-                    </div>
+            <!-- Season with increment button -->
+            <div class="number-control">
+            <span>Season: <span id="season-<?= $row['id'] ?>"><?= $row['season'] ?></span></span>
+            <button class="increment-btn" data-id="<?= $row['id'] ?>" data-field="season">+</button>
+            </div>
+
+            <!-- Episode with increment button -->
+            <div class="number-control">
+            <span>Episode: <span id="episode-<?= $row['id'] ?>"><?= $row['episode'] ?></span></span>
+            <button class="increment-btn" data-id="<?= $row['id'] ?>" data-field="episode">+</button>
+            </div>
 						
                         <p>Status: <?= ucfirst($row['status']) ?></p>
                         <a href="<?= htmlspecialchars($row['link']) ?>" target="_blank">Watch Here</a>
@@ -225,5 +217,40 @@
             <?php endwhile; ?>
         </div>
     </div>
+    <script>
+document.querySelectorAll('.increment-btn').forEach(button => {
+  button.addEventListener('click', async function(e) {
+    e.preventDefault(); // Prevent default button behavior
+
+    const id = this.getAttribute('data-id');
+    const field = this.getAttribute('data-field');
+    const targetId = `#${field}-${id}`;
+    
+    try {
+      const response = await fetch('increment.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id, field })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to increment value');
+      }
+
+      const data = await response.json(); // Assuming the PHP script returns JSON like: { success: true, updated: { season: 5, episode: 2 } }
+
+      // Update the corresponding DOM element
+      const target = document.querySelector(targetId);
+      target.textContent = data.updated[field];
+
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Something went wrong while incrementing the value.');
+    }
+  });
+});
+</script>
 </body>
 </html>
