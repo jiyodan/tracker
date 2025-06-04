@@ -1,14 +1,10 @@
 <?php
 $host = 'localhost';
-$dbname = 'tracker';
-$user = 'tracker';  // Default XAMPP username
-$pass = 'password';       // Default XAMPP password
+$db = 'tracker';
+$user = 'tracker';
+$pass = 'password';
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die("Could not connect to the database: " . $e->getMessage());
-}
-//echo "connected"
+try {$pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION) ;}catch(PDOException $e) {die("fucked up". $e->getMessage());}
+// echo "connected"
 ?>
